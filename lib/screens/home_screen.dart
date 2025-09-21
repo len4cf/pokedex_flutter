@@ -5,6 +5,7 @@ import '../widgets/pokemon_card.dart';
 import 'details_screen.dart';
 import 'favorites_screen.dart';
 
+// Tela principal que exibe a lista de Pokémons e permite busca
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
   @override
@@ -12,13 +13,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final ApiService api = ApiService();
-  final List<PokemonListItem> pokemons = [];
-  bool loading = false;
-  bool error = false;
-  int offset = 0;
-  final int limit = 20;
+  final ApiService api = ApiService();           // Serviço para chamar a API
+  final List<PokemonListItem> pokemons = [];     // Lista de Pokémons carregados
+  bool loading = false;                          // Indica se está carregando dados
+  bool error = false;                            // Indica se ocorreu erro na requisição
+  int offset = 0;                                // Offset para paginação
+  final int limit = 20;                          // Número de Pokémons por página
 
+  // Controller da busca
   final TextEditingController searchController = TextEditingController();
 
   @override
@@ -27,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadMore();
   }
 
+  // Função para carregar mais Pokémons (paginado)
   Future<void> _loadMore() async {
     setState(() {
       loading = true;
@@ -49,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Função de busca de Pokémon por nome ou ID
   Future<void> _search() async {
     final query = searchController.text.trim();
     if (query.isEmpty) return;
@@ -58,7 +62,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     try {
       final detail = await api.fetchPokemonDetailByNameOrId(query);
-      if (!mounted) return;
+      if (!mounted) return; // Verifica se o widget ainda está montado
+      // Navega para tela de detalhes do Pokémon encontrado
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -73,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     } catch (e) {
+      // Mostra mensagem caso Pokémon não seja encontrado
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Pokémon não encontrado')),
       );
@@ -87,6 +93,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100], 
+
+      // AppBar com título e botão para favoritos
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
@@ -162,13 +170,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
           ),
 
+          // Indicador de carregamento
           if (loading)
             const Padding(
               padding: EdgeInsets.all(16.0),
               child: CircularProgressIndicator(),
             ),
 
-          // Botão "Carregar Mais"
+          // Botão "Carregar Mais" para paginação manual
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12.0),
             child: OutlinedButton(
